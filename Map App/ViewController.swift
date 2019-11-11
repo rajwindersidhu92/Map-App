@@ -17,6 +17,7 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
     var myAnnotations = [CLLocationCoordinate2D]()
     
 
+    var kms = [CLLocationCoordinate2D]()
     @IBAction func clearPoints(_ sender: UIButton) {
         
         mapView.removeAnnotations(mapView.annotations)
@@ -95,10 +96,26 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
                                                   present(alert, animated: true)
             }
         
+        
     
         
         let line = MKPolyline(coordinates: myAnnotations, count: myAnnotations.count)
         mapView.addOverlay(line)
+        print(myAnnotations.count)
+        if(myAnnotations.count >= 2)
+        {
+            let dis = "\(distance(myAnnotations[myAnnotations.count-1], myAnnotations[myAnnotations.count-2])) KMS"
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = midpoint(myAnnotations[myAnnotations.count-2], myAnnotations[myAnnotations.count-1])
+            print(annotation.coordinate)
+            annotation.title = dis
+            mapView.addAnnotation(annotation)
+            kms.append(annotation.coordinate)
+            
+            
+            
+            
+        }
     }
     
     func getLocationName(location:CLLocation) -> String
@@ -131,6 +148,32 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
     func deg2rad(_ number: Double) -> Double {
         return number * .pi / 180
     }
+    func rad2deg(_ rad:Double) -> Double {
+        return rad * 180.0 / .pi
+    }
+
+    func distance(_ location1:CLLocationCoordinate2D, _ location2:CLLocationCoordinate2D ) -> Double {
+        
+        let unit = "K"
+        let lat1 = location1.latitude
+        let lat2 = location2.latitude
+        let lon1 = location1.longitude
+        let lon2 = location2.longitude
+        
+        
+        let theta = lon1 - lon2
+        var dist = sin(deg2rad(lat1)) * sin(deg2rad(lat2)) + cos(deg2rad(lat1)) * cos(deg2rad(lat2)) * cos(deg2rad(theta))
+        dist = acos(dist)
+        dist = rad2deg(dist)
+        dist = dist * 60 * 1.1515
+        if (unit == "K") {
+            dist = dist * 1.609344
+        }
+        else if (unit == "N") {
+            dist = dist * 0.8684
+        }
+        return dist
+    }
     func midpoint(_ location1:CLLocationCoordinate2D, _ location2:CLLocationCoordinate2D) -> CLLocationCoordinate2D
     {
         
@@ -148,5 +191,24 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
         return midpoint
     }
     
+    
 }
 
+extension CLLocationCoordinate2D {
+   func middleLocationWith(location:CLLocationCoordinate2D) -> CLLocationCoordinate2D {
+
+    let lon1 = longitude * .pi / 180
+    let lon2 = location.longitude * .pi / 180
+    let lat1 = latitude * .pi / 180
+    let lat2 = location.latitude * .pi / 180
+    let dLon = lon2 - lon1
+    let x = cos(lat2) * cos(dLon)
+    let y = cos(lat2) * sin(dLon)
+
+    let lat3 = atan2( sin(lat1) + sin(lat2), sqrt((cos(lat1) + x) * (cos(lat1) + x) + y * y) )
+    let lon3 = lon1 + atan2(y, cos(lat1) + x)
+
+    let center:CLLocationCoordinate2D = CLLocationCoordinate2DMake(lat3 * 180 / .pi, lon3 * 180 / M_PI)
+    return center
+}
+}
