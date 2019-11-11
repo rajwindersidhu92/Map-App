@@ -9,6 +9,8 @@
 import UIKit
 import CoreLocation
 import MapKit
+import Foundation
+
 
 class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDelegate{
     
@@ -119,10 +121,31 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
             let linerenderer = MKPolylineRenderer(polyline: polyline)
             linerenderer.strokeColor = .blue
             linerenderer.lineWidth = 2.0
+            linerenderer.accessibilityLabel = "Hello"
+            linerenderer.accessibilityHint = "NEW"
             return linerenderer
         }
         //fatalError("Something Went Wrong")
         return MKOverlayRenderer()
+    }
+    func deg2rad(_ number: Double) -> Double {
+        return number * .pi / 180
+    }
+    func midpoint(_ location1:CLLocationCoordinate2D, _ location2:CLLocationCoordinate2D) -> CLLocationCoordinate2D
+    {
+        
+        let dlon = deg2rad(location2.longitude - location1.longitude)
+        let lat1 = deg2rad(location1.latitude)
+        let lng1 = deg2rad(location1.longitude)
+        let lat2 = deg2rad(location2.latitude)
+        let bx = cos(lat2) * cos(dlon)
+        let by = cos(lat2) * sin(dlon)
+        let lat3 = atan2(sin(lat1)+sin(lat2), sqrt((cos(lat1)+bx)*(cos(lat1)+by)+by*by))
+        let lon3 = lng1+atan2(by, cos(lat1)+bx)
+        
+        let midpoint = CLLocationCoordinate2D(latitude: lat3, longitude: lon3)
+        
+        return midpoint
     }
     
 }
