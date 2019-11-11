@@ -17,6 +17,10 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
 
     @IBAction func clearPoints(_ sender: UIButton) {
         
+        mapView.removeAnnotations(mapView.annotations)
+        mapView.removeOverlays(mapView.overlays)
+        myAnnotations.removeAll()
+        
     }
     @IBOutlet weak var mapView: MKMapView!
     
