@@ -12,7 +12,7 @@ import MapKit
 
 class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDelegate{
     
-    var myAnnotations = [CLLocation]()
+    var myAnnotations = [CLLocationCoordinate2D]()
     
 
     @IBAction func clearPoints(_ sender: UIButton) {
@@ -53,9 +53,11 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
 
     @objc func addPin(tapGesture:UITapGestureRecognizer)
     {
-        print("Touch Happened")
+       
         let touchPin = tapGesture.location(in: mapView)
         let touchLocation = mapView.convert(touchPin, toCoordinateFrom:mapView)
+        
+        
         let location = CLLocation(latitude: touchLocation.latitude, longitude: touchLocation.longitude)
         
         let annotation = MKPointAnnotation()
@@ -71,8 +73,12 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
             if(myAnnotations.count < 5)
             {
 
-                myAnnotations.append(location)
+                myAnnotations.append(touchLocation)
                 mapView.addAnnotation(annotation)
+                if(myAnnotations.count==5)
+                {
+                    myAnnotations.append(myAnnotations[0])
+                }
             }
             else
             {
@@ -85,7 +91,8 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
         
     
         
-        
+        let line = MKPolyline(coordinates: myAnnotations, count: myAnnotations.count)
+        mapView.addOverlay(line)
     }
     
     func getLocationName(location:CLLocation) -> String
@@ -101,6 +108,18 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
     
         return string
     }
-
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        print("Building Line")
+        if let polyline = overlay as? MKPolyline
+        {
+            let linerenderer = MKPolylineRenderer(polyline: polyline)
+            linerenderer.strokeColor = .blue
+            linerenderer.lineWidth = 2.0
+            return linerenderer
+        }
+        //fatalError("Something Went Wrong")
+        return MKOverlayRenderer()
+    }
+    
 }
 
