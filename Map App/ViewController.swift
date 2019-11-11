@@ -12,6 +12,7 @@ import MapKit
 
 class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDelegate{
     
+    var myAnnotations = [CLLocation]()
     
 
     @IBAction func clearPoints(_ sender: UIButton) {
@@ -46,8 +47,60 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
                             locationmanager.desiredAccuracy = kCLLocationAccuracyBest
                             locationmanager.startUpdatingLocation()
                         }
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(addPin))
+        self.mapView.addGestureRecognizer(tapGesture)
     }
 
+    @objc func addPin(tapGesture:UITapGestureRecognizer)
+    {
+        print("Touch Happened")
+        let touchPin = tapGesture.location(in: mapView)
+        let touchLocation = mapView.convert(touchPin, toCoordinateFrom:mapView)
+        let location = CLLocation(latitude: touchLocation.latitude, longitude: touchLocation.longitude)
+        
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = touchLocation
+        
+         
+            let geo = CLGeocoder()
+            geo.reverseGeocodeLocation(location, completionHandler: {(placemark, error) in
+            
+                annotation.title = placemark![0].name!
+                  
+            })
+            if(myAnnotations.count < 5)
+            {
+
+                myAnnotations.append(location)
+                mapView.addAnnotation(annotation)
+            }
+            else
+            {
+                let alert = UIAlertController(title: "Error", message: "Maximum Points Limit is 5", preferredStyle:.alert)
+                                                  
+                             
+                                                  alert.addAction(UIAlertAction(title:"OK", style:.cancel, handler: nil))
+                                                  present(alert, animated: true)
+            }
+        
+    
+        
+        
+    }
+    
+    func getLocationName(location:CLLocation) -> String
+    
+    {
+        var string = ""
+        let geo = CLGeocoder()
+        geo.reverseGeocodeLocation(location, completionHandler: {(placemark, error) in
+        
+            string = placemark![0].name!
+              
+        })
+    
+        return string
+    }
 
 }
 
