@@ -16,7 +16,35 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
     
     var myAnnotations = [CLLocationCoordinate2D]()
     
-
+    @IBOutlet weak var distanceUpdater: UILabel!
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+       // print(view)
+        if(myAnnotations.count == 6)
+        {
+            myAnnotations.remove(at: 5)
+            print("removing 6th element")
+        }
+         deleteFromArray(view.annotation!)
+        mapView.removeOverlays(mapView.overlays)
+        mapView.removeAnnotation(view.annotation!)
+       
+    }
+    
+    func deleteFromArray(_ annotation:MKAnnotation)
+    {
+        for i in 0...(myAnnotations.count - 1)        {
+            if(myAnnotations[i].latitude == annotation.coordinate.latitude)
+            {
+                if(myAnnotations[i].longitude == annotation.coordinate.longitude)
+                {
+                    myAnnotations.remove(at: i)
+                    break
+                }
+            }
+        }
+    }
+    
+    
     var kms = [CLLocationCoordinate2D]()
     @IBAction func clearPoints(_ sender: UIButton) {
         
@@ -61,6 +89,7 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
     @objc func addPin(tapGesture:UITapGestureRecognizer)
     {
        
+        distanceUpdater.text = "Distance \(totalDistance) KMS"
         let touchPin = tapGesture.location(in: mapView)
         let touchLocation = mapView.convert(touchPin, toCoordinateFrom:mapView)
         
@@ -104,9 +133,19 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
         print(myAnnotations.count)
         if(myAnnotations.count >= 2)
         {
-            let dis = "\(distance(myAnnotations[myAnnotations.count-1], myAnnotations[myAnnotations.count-2])) KMS"
+            if(myAnnotations.count==6)
+            {
+                let dis = "\(distance(myAnnotations[myAnnotations.count-3], myAnnotations[myAnnotations.count-2])) KMS"
+                let annotation = MKPointAnnotation()
+                annotation.coordinate = myAnnotations[myAnnotations.count-3].middleLocationWith(location:myAnnotations[myAnnotations.count-2])
+                print(annotation.coordinate)
+                annotation.title = dis
+                mapView.addAnnotation(annotation)
+                kms.append(annotation.coordinate)
+            }
+            let dis = "\(distance(myAnnotations[myAnnotations.count-2], myAnnotations[myAnnotations.count-1])) KMS"
             let annotation = MKPointAnnotation()
-            annotation.coordinate = midpoint(myAnnotations[myAnnotations.count-2], myAnnotations[myAnnotations.count-1])
+            annotation.coordinate = myAnnotations[myAnnotations.count-2].middleLocationWith(location:myAnnotations[myAnnotations.count-1])
             print(annotation.coordinate)
             annotation.title = dis
             mapView.addAnnotation(annotation)
@@ -172,8 +211,11 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
         else if (unit == "N") {
             dist = dist * 0.8684
         }
-        return dist
-    }
+        totalDistance += Double(String(format: "%.2f", dist))!
+        return Double(String(format: "%.2f", dist))!
+            }
+    
+    var totalDistance = 0.0
     func midpoint(_ location1:CLLocationCoordinate2D, _ location2:CLLocationCoordinate2D) -> CLLocationCoordinate2D
     {
         
@@ -190,6 +232,7 @@ class ViewController: UIViewController , CLLocationManagerDelegate, MKMapViewDel
         
         return midpoint
     }
+ 
     
     
 }
@@ -211,4 +254,5 @@ extension CLLocationCoordinate2D {
     let center:CLLocationCoordinate2D = CLLocationCoordinate2DMake(lat3 * 180 / .pi, lon3 * 180 / M_PI)
     return center
 }
+
 }

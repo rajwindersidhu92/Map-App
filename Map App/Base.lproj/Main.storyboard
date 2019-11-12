@@ -27,11 +27,19 @@
                                     <action selector="clearPoints:" destination="BYZ-38-t0r" eventType="touchUpInside" id="KyR-Gx-fFs"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Distance Calculated" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qM1-Sl-RKQ">
+                                <rect key="frame" x="131" y="813" width="153" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
+                        <outlet property="distanceUpdater" destination="qM1-Sl-RKQ" id="AeV-YU-Bot"/>
                         <outlet property="mapView" destination="nmr-lo-bpO" id="68m-2d-fyz"/>
                     </connections>
                 </viewController>
